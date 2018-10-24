@@ -35,7 +35,7 @@ typedef struct customer {
 // queue heads for customer lines, business is the higher priority
 struct customer* business_queue; 
 struct customer* economy_queue; 
-struct customer all_customers[MAX_INPUT];
+struct customer* all_customers[MAX_INPUT];
 
 // queue heads for time waited
 double business_time[MAX_INPUT];

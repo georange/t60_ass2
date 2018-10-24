@@ -138,10 +138,10 @@ void set_up_customers(char* to_read) {
 	
 	// parse first line for total number of customers
 	total = atoi(contents[0]);
-	
+
 	// add content to queues
+	int j = 0;
 	for (i = 1; i < total+1; i++) {
-		int j = 0;
 		struct customer* temp = (struct customer*)malloc(sizeof(struct customer));
 		
 		char* token = strtok(contents[i], ":");

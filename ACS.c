@@ -161,24 +161,17 @@ void set_up_customers(char* to_read) {
 // testing function for printing out the current queues
 void print_queues() {
 	printf ("Business queue: \n");
-	
 	struct customer* curr = business_queue;
-	if (curr) {
+	while (curr != NULL) {
 		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
-	}
-	while (curr->next != NULL) {
 		curr = curr->next;
-		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 	}
 	
 	printf ("Economy queue: \n");
 	curr = economy_queue;
-	if (curr) {
+	while (curr != NULL) {
 		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
-	}
-	while (curr->next != NULL) {
 		curr = curr->next;
-		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 	}
 }
 

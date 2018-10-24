@@ -76,9 +76,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 		queue_head->service_time = service_time;
 		queue_head->class = class;
 		queue_head->next = NULL;
-		
-		//printf("%s\n",queue_head->next->name);
-		
+				
 	} else {
 		struct customer *curr = queue_head;
 		while (curr->next != NULL) {
@@ -122,7 +120,7 @@ void dequeue(int class) {
 void set_up_customers(char* to_read) {
 	FILE* input = fopen(to_read, "r");
 	if (!input)	{
-		printf("Error: could not open stat file.");
+		printf("Error: could not open input file.");
 		exit(1);
 	}
 	char buffer[MAX_FILE];
@@ -137,7 +135,28 @@ void set_up_customers(char* to_read) {
 	// parse first line for total number of customers
 	total = atoi(contents[0]);
 	
-	// HERE
+	int i;
+	for (i = 1; i < total+1; i++) {
+		struct customer temp = (struct customer)malloc(sizeof(struct customer));
+		
+		char* token = strtok(contents[i], ":");
+		temp->id = atoi(token);
+		
+		token = strtok(NULL, ",");
+		temp->class = atoi(token);
+		
+		token = strtok(NULL, ",");
+		temp->arrival_time = atoi(token);
+		
+		token = strtok(NULL, ",");
+		temp->service_time = atoi(token);
+		
+		printf("%d %d %d %d\n",temp->id, temp->class, stemp->arrival_time, temp->service_time);
+
+		
+		enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);
+		free(temp);
+	}
 }
 
 int main(int argc, char* argv[]) {
@@ -150,5 +169,5 @@ int main(int argc, char* argv[]) {
 	
 	
 	
-	
+	exit (0);
 }

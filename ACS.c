@@ -151,7 +151,7 @@ void set_up_customers(char* to_read) {
 		token = strtok(NULL, ",");
 		temp->service_time = atoi(token);
 		
-		printf("%d %d %d %d\n",temp->id, temp->class, stemp->arrival_time, temp->service_time);
+		printf("%d %d %d %d\n",temp->id, temp->class, temp->arrival_time, temp->service_time);
 
 		
 		enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);

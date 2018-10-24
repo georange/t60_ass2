@@ -59,7 +59,7 @@ int total = 0; 		// total customers
 
 // inserts a customer into a queue
 void enqueue(int id, float arrival_time, float service_time, int class) {
-	struct customer* queue_head;
+	struct customer queue_head;
 
 	if (class == 0) {
 		queue_head = &economy_queue;
@@ -99,7 +99,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 
 // deletes a customer from the start of a queue
 void dequeue(int class) {
-	struct customer* queue_head;
+	struct customer queue_head;
 
 	if (class == 0) {
 		queue_head = &economy_queue;

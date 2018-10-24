@@ -35,7 +35,7 @@ typedef struct customer {
 // queue heads for customer lines, business is the higher priority
 struct customer* business_queue; 
 struct customer* economy_queue; 
-struct customer* all_customers;
+struct customer* all_customers[MAX_INPUT];
 
 // queue heads for time waited
 double business_time[MAX_INPUT];
@@ -142,7 +142,7 @@ void set_up_customers(char* to_read) {
 	// add content to queues
 	int j = 0;
 	for (i = 1; i < total+1; i++) {
-		struct customer temp = malloc(sizeof(struct customer));
+		struct customer* temp = (struct customer*)malloc(sizeof(struct customer));
 		
 		char* token = strtok(contents[i], ":");
 		temp->id = atoi(token);

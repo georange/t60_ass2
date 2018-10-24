@@ -33,8 +33,8 @@ typedef struct customer {
 /** Global Variables **/
 
 // queue heads for customer lines, business is the higher priority
-struct customer* business_queue; 
-struct customer* economy_queue; 
+struct customer* business_queue = NULL; 
+struct customer* economy_queue = NULL; 
 struct customer* all_customers[MAX_INPUT];
 
 // queue heads for time waited

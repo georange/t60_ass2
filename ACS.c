@@ -142,7 +142,7 @@ void set_up_customers(char* to_read) {
 	// add content to queues
 	int j = 0;
 	for (i = 1; i < total+1; i++) {
-		struct customer* temp = (struct customer*)malloc(sizeof(struct customer));
+		struct customer temp = malloc(sizeof(struct customer));
 		
 		char* token = strtok(contents[i], ":");
 		temp->id = atoi(token);

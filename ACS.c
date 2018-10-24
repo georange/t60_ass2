@@ -142,20 +142,21 @@ void set_up_customers(char* to_read) {
 	// add content to queues
 	for (i = 1; i < total+1; i++) {
 		int j = 0;
-		struct customer* all_customers[j] = (struct customer*)malloc(sizeof(struct customer));
+		struct customer* temp = (struct customer*)malloc(sizeof(struct customer));
 		
 		char* token = strtok(contents[i], ":");
-		all_customers[j]->id = atoi(token);
+		temp->id = atoi(token);
 		
 		token = strtok(NULL, ",");
-		all_customers[j]->class = atoi(token);
+		temp->class = atoi(token);
 		
 		token = strtok(NULL, ",");
-		all_customers[j]->arrival_time = atoi(token);
+		temp->arrival_time = atoi(token);
 		
 		token = strtok(NULL, ",");
-		all_customers[j]->service_time = atoi(token);
+		temp->service_time = atoi(token);
 		
+		all_customers[j] = temp;
 		j++;
 		
 		//printf("%d %d %f %f\n",temp->id, temp->class, temp->arrival_time, temp->service_time);

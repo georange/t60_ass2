@@ -162,7 +162,7 @@ void set_up_customers(char* to_read) {
 void print_queues() {
 	printf ("Business queue: \n");
 	
-	struct node *curr = business_queue;
+	struct customer* curr = business_queue;
 	if (curr) {
 		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 	}

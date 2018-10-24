@@ -69,7 +69,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 	}
 
 	if (!queue_head) {
-		printf("RUN");
+		printf("RUN\n");
 		queue_head = (struct customer*)malloc(sizeof(struct customer));
 		
 		queue_head->id = id;
@@ -79,9 +79,10 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 		queue_head->next = NULL;
 				
 	} else {
-		printf("RUN");
+		printf("RUN\n");
 		struct customer *curr = queue_head;
 		while (curr->next != NULL) {
+			printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 			curr = curr->next;
 		}
 
@@ -184,7 +185,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	set_up_customers(argv[1]);
-	print_queues();
+	//print_queues();
 	
 	
 	

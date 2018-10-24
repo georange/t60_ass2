@@ -135,11 +135,11 @@ void set_up_customers(char* to_read) {
 	// parse first line for total number of customers
 	total = atoi(contents[0]);
 	
-	int i;
-	for (i = 1; i < total+1; i++) {
+	int j;
+	for (j = 1; j < total+1; j++) {
 		struct customer temp = (struct customer)malloc(sizeof(struct customer));
 		
-		char* token = strtok(contents[i], ":");
+		char* token = strtok(contents[j], ":");
 		temp->id = atoi(token);
 		
 		token = strtok(NULL, ",");

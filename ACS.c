@@ -163,6 +163,7 @@ void print_queues() {
 	printf ("Business queue: \n");
 	struct customer* curr = business_queue;
 	while (curr != NULL) {
+		printf("RUN");
 		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 		curr = curr->next;
 	}

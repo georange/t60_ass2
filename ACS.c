@@ -62,9 +62,9 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 	struct customer* queue_head;
 
 	if (class == 0) {
-		queue_head = economy_queue;
+		queue_head = &economy_queue;
 	} else if (class == 1) {
-		queue_head = business_queue;
+		queue_head = &business_queue;
 	} else {
 		fprintf(stderr, "Error: invalid class.\n");
 		exit(1);
@@ -102,9 +102,9 @@ void dequeue(int class) {
 	struct customer* queue_head;
 
 	if (class == 0) {
-		queue_head = economy_queue;
+		queue_head = &economy_queue;
 	} else if (class == 1) {
-		queue_head = business_queue;
+		queue_head = &business_queue;
 	} else {
 		fprintf(stderr, "Error: invalid class.\n");
 		exit(1);
@@ -139,7 +139,7 @@ void set_up_customers(char* to_read) {
 	// parse first line for total number of customers
 	total = atoi(contents[0]);
 
-	// add content to queues
+	// add content to all_customers
 	int j = 0;
 	for (i = 1; i < total+1; i++) {
 		struct customer* temp = (struct customer*)malloc(sizeof(struct customer));

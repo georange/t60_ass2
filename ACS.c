@@ -161,7 +161,7 @@ void set_up_customers(char* to_read) {
 		
 		//printf("%d %d %f %f\n",temp->id, temp->class, temp->arrival_time, temp->service_time);
 		
-		//enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);
+		enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);
 		//free(temp);
 	}
 }
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	set_up_customers(argv[1]);
-	print_queues();					// ??????????
+	print_queues();					// ?????????? all customer works, queues unsure
 	
 	// initialization of mutex, convar, attr, and detachstate
 	if (pthread_mutex_init(&mutex, NULL) != 0) {

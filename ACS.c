@@ -195,13 +195,13 @@ void print_queues() {
 
 
 int main(int argc, char* argv[]) {
-/*
+
 	if (argc != 2) {
 		fprintf(stderr, "Error: please include an input file name.\n");
 		exit(1);
 	}
-*/
-	set_up_customers("/home/james/input.txt");
+
+	set_up_customers(argv[1]);
 	print_queues();					// ?????????? all customer works, queues unsure
 
 	// initialization of mutex, convar, attr, and detachstate

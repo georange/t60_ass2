@@ -1,7 +1,7 @@
 /**
-   Georgia Ma 
+   Georgia Ma
    V00849447
-   CSC 360 
+   CSC 360
    Assignment 2
 **/
 
@@ -33,8 +33,8 @@ typedef struct customer {
 /** Global Variables **/
 
 // queue heads for customer lines, business is the higher priority
-struct customer* business_queue; 
-struct customer* economy_queue; 
+struct customer business_queue;
+struct customer economy_queue;
 struct customer* all_customers[MAX_INPUT];
 
 // queue heads for time waited
@@ -73,7 +73,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 	if (!queue_head) {
 		printf("RUN\n");
 		queue_head = (struct customer*)malloc(sizeof(struct customer));
-		
+
 		queue_head->id = id;
 		queue_head->arrival_time = arrival_time;
 		queue_head->service_time = service_time;
@@ -109,7 +109,7 @@ void dequeue(int class) {
 		fprintf(stderr, "Error: invalid class.\n");
 		exit(1);
 	}
-	
+
 	if (queue_head) {
 		queue_head = queue_head->next;
 	}
@@ -134,8 +134,8 @@ void set_up_customers(char* to_read) {
 		strncpy(contents[i], buffer, strlen(buffer)+1);
 		i++;
 	}
-	fclose(input);	
-	
+	fclose(input);
+
 	// parse first line for total number of customers
 	total = atoi(contents[0]);
 
@@ -143,24 +143,24 @@ void set_up_customers(char* to_read) {
 	int j = 0;
 	for (i = 1; i < total+1; i++) {
 		struct customer* temp = (struct customer*)malloc(sizeof(struct customer));
-		
+
 		char* token = strtok(contents[i], ":");
 		temp->id = atoi(token);
-		
+
 		token = strtok(NULL, ",");
 		temp->class = atoi(token);
-		
+
 		token = strtok(NULL, ",");
 		temp->arrival_time = atoi(token);
-		
+
 		token = strtok(NULL, ",");
 		temp->service_time = atoi(token);
-		
+
 		all_customers[j] = temp;
 		j++;
-		
+
 		//printf("%d %d %f %f\n",temp->id, temp->class, temp->arrival_time, temp->service_time);
-		
+
 		enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);
 		//free(temp);
 	}
@@ -173,16 +173,16 @@ void print_queues() {
 	for (i = 0; i < total; i++) {
 		printf("%d %d %f %f\n",all_customers[i]->id, all_customers[i]->class, all_customers[i]->arrival_time, all_customers[i]->service_time);
 	}
-	
+
 	printf ("Business queue: \n");
-	struct customer* curr = business_queue;
+	struct customer* curr = business_queue.next;
 	while (curr != NULL) {
 		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 		curr = curr->next;
 	}
-	
+
 	printf ("Economy queue: \n");
-	curr = economy_queue;
+	curr = economy_queue.next;
 	while (curr != NULL) {
 		printf("%d %d %f %f\n",curr->id, curr->class, curr->arrival_time, curr->service_time);
 		curr = curr->next;
@@ -195,14 +195,15 @@ void print_queues() {
 
 
 int main(int argc, char* argv[]) {
+/*
 	if (argc != 2) {
 		fprintf(stderr, "Error: please include an input file name.\n");
 		exit(1);
 	}
-	
-	set_up_customers(argv[1]);
+*/
+	set_up_customers("/home/james/input.txt");
 	print_queues();					// ?????????? all customer works, queues unsure
-	
+
 	// initialization of mutex, convar, attr, and detachstate
 	if (pthread_mutex_init(&mutex, NULL) != 0) {
 		printf("Error: mutex initialization fail.\n");
@@ -222,16 +223,16 @@ int main(int argc, char* argv[]) {
 		printf("Error: setdetachstate fail.\n");
 		exit(1);
 	}
-	
+
 	// set up threads for each customer
-	
+
 	// set up threads for each clerk
-	
-	
+
+
 	// wait for threads to finish
-	
-	
-	// clean up 
+
+
+	// clean up
 	if (pthread_mutex_destroy(&mutex) != 0) {
 		printf("Error: mutex destroy failed.\n");
 		exit(1);
@@ -244,6 +245,6 @@ int main(int argc, char* argv[]) {
 		printf("Error: attr destroy failed.\n");
 		exit(1);
 	}
-	
+
 	exit (0);
 }

@@ -294,7 +294,7 @@ int main(int argc, char* argv[]) {
 	// set up threads for each customer and clerk
 	int i;
 	for (i = 0; i < total; i++) {
-		if (pthread_create(&customers[i], &attr, customer_thread_function, (void*)&all_customers[i]) != 0){
+		if (pthread_create(&customers[i], &attr, customer_thread_function, (void*)all_customers[i]) != 0){
 			printf("Error: failed to create customer pthread.\n");
 			exit(1);
 		}

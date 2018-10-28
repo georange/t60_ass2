@@ -316,7 +316,7 @@ int main(int argc, char* argv[]) {
 
 	// Wait for all threads to terminate
 	for (i = 0; i < total; i++) {
-		if (pthread_join(threads[i], NULL) != 0) {
+		if (pthread_join(customers[i], NULL) != 0) {
 			printf("Error: failed to join pthread.\n");
 			exit(1);
 		}

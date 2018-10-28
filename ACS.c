@@ -32,39 +32,50 @@ typedef struct customer {
 
 /** Global Variables **/
 
-// queue heads for customer lines, business is the higher priority
+// queue heads for customer lines (business is the higher priority) and amount of customers in each line
 struct customer business_queue;
 struct customer economy_queue;
 struct customer* all_customers[MAX_INPUT];
+int business_count = 0;
+int economy_count = 0;
 
-// queue heads for time waited
+// lists for time waited and amount of customers in each line (index)
 double business_time[MAX_INPUT];
+int b_i = 0;
 double economy_time[MAX_INPUT];
+int e_i = 0;
 
 // threads, mutex, and convar
-pthread_t clerks[4];
+//pthread_t clerks[4];
 pthread_t customers[MAX_INPUT];
 pthread_mutex_t mutex;
 pthread_cond_t convar;
 
 // status variables
-int serving = -1; 	// for telling which clerk is serving a queue
+int clerks[4] = {-1};		// for telling which clerk is serving which customer
+
+//int serving = -1; 	// for telling which clerk is serving a queue, -1 means no clerk is serving
 int busy = 0;		// for telling when a queue is busy being served by a clerk
-int served = 0;		// for telling when a customer has left a queue and is being served
+int served = 0;		// for telling when a customer has left a queue and is being served (to stop multiple customers leaving the queue)
 
 int total = 0; 		// total customers
 
 
 /** Queue Functions **/
 
-// inserts a customer into a queue
+// inserts a customer into a queue, returns size of queue
 void enqueue(int id, float arrival_time, float service_time, int class) {
 	struct customer* queue_head;
+	int count = 0;
 
 	if (class == 0) {
 		queue_head = (struct customer*)&economy_queue;
+		economy_count++;
+		count = economy_count;
 	} else if (class == 1) {
 		queue_head = (struct customer*)&business_queue;
+		business_count++;
+		count = business_count;
 	} else {
 		fprintf(stderr, "Error: invalid class.\n");
 		exit(1);
@@ -79,7 +90,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 		queue_head->service_time = service_time;
 		queue_head->class = class;
 		queue_head->next = NULL;
-		printf("%d %d %f %f\n",queue_head->id, queue_head->class, queue_head->arrival_time, queue_head->service_time);
+		//printf("%d %d %f %f\n",queue_head->id, queue_head->class, queue_head->arrival_time, queue_head->service_time);
 	} else {
 		printf("RUN\n");
 		struct customer *curr = queue_head;
@@ -93,18 +104,26 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 		curr->next->service_time = service_time;
 		curr->next->class = class;
 		curr->next->next = NULL;
-		printf("%d %d %f %f\n",curr->next->id, curr->next->class, curr->next->arrival_time, curr->next->service_time);
+		//printf("%d %d %f %f\n",curr->next->id, curr->next->class, curr->next->arrival_time, curr->next->service_time);
 	}
+	
+	printf("A customer enters a queue: the queue ID %1d, and length of the queue %2d. \n", class, count);
+	return;
 }
 
 // deletes a customer from the start of a queue
 void dequeue(int class) {
 	struct customer* queue_head;
+	int count;
 
 	if (class == 0) {
 		queue_head = (struct customer*)&economy_queue;
+		economy_count--;
+		count = economy_count;
 	} else if (class == 1) {
 		queue_head = (struct customer*)&business_queue;
+		business_count--;
+		count = business_count;
 	} else {
 		fprintf(stderr, "Error: invalid class.\n");
 		exit(1);
@@ -113,7 +132,8 @@ void dequeue(int class) {
 	if (queue_head) {
 		queue_head = queue_head->next;
 	}
-
+	
+	printf("A customer leaves a queue: the queue ID %1d, and length of the queue %2d. \n", class, count);
 	return;
 }
 
@@ -124,7 +144,7 @@ void dequeue(int class) {
 void set_up_customers(char* to_read) {
 	FILE* input = fopen(to_read, "r");
 	if (!input)	{
-		printf("Error: could not open input file.");
+		printf("Error: could not open input file. \n");
 		exit(1);
 	}
 	char buffer[MAX_FILE];
@@ -194,6 +214,53 @@ void print_queues() {
 
 
 
+// customer threads
+void* customer_thread_function(void* temp) {
+	customer* c = (customer*)temp;
+	clock_t start, end, curr;
+    double cpu_time_used;
+	int clerk = -1;
+	start = clock();
+	
+	// wait for customer to arrive on time
+	usleep(c->arrival_time * SLEEP_TIME_CONVERSION);
+	printf ("A customer arrives: customer ID %2d. \n", c->id);
+	
+	// GET SERVICE
+    
+	end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+	if (c->class == 1) {
+		business_time[b_i] = cpu_time_used;
+		b_i++;
+	} else {
+		economy_time[e_i] = cpu_time_used;
+		e_i++;
+	}
+	
+	// wait for time to serve customer
+	usleep(c->service_time * SLEEP_TIME_CONVERSION);
+	
+	// print at end of service 
+	printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", cpu_time_used, c->id, clerk);
+	
+	// unlock and broadcast to finish 
+	//pthread_mutex_unlock(&mutex);
+	//pthread_cond_broadcast(&convar);
+	
+	pthread_exit(NULL);
+}
+/*
+// clerk threads
+void* clerk_thread_function(void* i) {
+	int clerk_id = *((int *) i);
+	clerk_id++;
+    free(i);
+	
+	
+	pthread_exit(NULL);
+} */
+
 int main(int argc, char* argv[]) {
 
 	if (argc != 2) {
@@ -202,7 +269,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	set_up_customers(argv[1]);
-	print_queues();					// ?????????? all customer works, queues unsure
+	//print_queues();					
 
 	// initialization of mutex, convar, attr, and detachstate
 	if (pthread_mutex_init(&mutex, NULL) != 0) {
@@ -224,13 +291,50 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	// set up threads for each customer
+	// set up threads for each customer and clerk
+	int i;
+	for (i = 0; i < total; i++) {
+		if (pthread_create(&customers[i], &attr, customer_thread_function, (void*)&all_customers[i]) != 0){
+			printf("Error: failed to create customer pthread.\n");
+			exit(1);
+		}
+	}
+	/*
+	for (i = 0; i < 4; i++) {
+		int *arg = malloc(sizeof(*arg));
+        if ( arg == NULL ) {
+            printf("Error: failed to allocate memory for clerk_id\n");
+            exit(1);
+        }
 
-	// set up threads for each clerk
+        *arg = i;
+		if (pthread_create(&clerks[i], &attr, clerk_thread_function, arg) != 0){
+			printf("Error: failed to create clerk pthread.\n");
+			exit(1);
+		}
+	} */
 
-
-	// wait for threads to finish
-
+	// Wait for all threads to terminate
+	for (i = 0; i < total; i++) {
+		if (pthread_join(threads[i], NULL) != 0) {
+			printf("Error: failed to join pthread.\n");
+			exit(1);
+		}
+	}
+	
+	// print time averages
+	int all_time, b_time, e_time;
+	for (i = 0; i < b_i; i++) {
+		b_time = b_time + business_time[i];
+	}
+	for (i = 0; i < e_i; i++) {
+		e_time = e_time + economy_time[i];
+	}
+	all_time = b_time + e_time;
+	
+	printf("The average waiting time for all customers in the system is: %.2f seconds. \n", all_time/total);
+	printf("The average waiting time for all business-class customers is: %.2f seconds. \n", b_time/b_i);
+	printf("The average waiting time for all economy-class customers is: %.2f seconds. \n", e_time/e_i);
 
 	// clean up
 	if (pthread_mutex_destroy(&mutex) != 0) {

@@ -217,7 +217,7 @@ void* customer_thread_function(void* temp) {
 	clock_t start, end, curr;
     double cpu_time_used;
 	int clerk = -1;
-	start = &clock();
+	start = clock();
 	
 	// wait for customer to arrive on time
 	usleep(c->arrival_time * SLEEP_TIME_CONVERSION);
@@ -225,7 +225,7 @@ void* customer_thread_function(void* temp) {
 	
 	// GET SERVICE
     
-	end = &clock();
+	end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 	if (c->class == 1) {
 		business_time[b_i] = cpu_time_used;

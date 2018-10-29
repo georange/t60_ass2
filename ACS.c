@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <time.h>
+#include <sys/time.h>
 
 #define SLEEP_TIME_CONVERSION 100000
 #define TIME_CONVERSION 0.1
@@ -37,9 +37,9 @@ int business_count = 0;
 int economy_count = 0;
 
 // lists for time waited and amount of customers in each line (index)
-double business_time[MAX_INPUT];
+float business_time[MAX_INPUT];
 int b_i = 0;
-double economy_time[MAX_INPUT];
+float economy_time[MAX_INPUT];
 int e_i = 0;
 
 // threads, mutex, and convar
@@ -210,14 +210,24 @@ void print_queues() {
 /** Thread Functions **/
 
 
+float get_time_from(struct timeval start) {
+	struct timeval curr;
+	gettimeofday(&curr, NULL);
+	time_conversion = 10*SLEEP_TIME_CONVERSION;
+	
+	long curr_microseconds = (curr.tv_sec * time_conversion) + curr.tv_usec;
+	long start_microseconds = (start.tv_sec * time_conversion) + start.tv_usec;
+	return (float)(curr_microseconds - start_microseconds) / (time_conversion);
+}
+
 
 // customer threads
 void* customer_thread_function(void* temp) {
 	customer* c = (customer*)temp;
-	clock_t start, end, curr;
-    double cpu_time_used;
+	struct timeval start;
+    float time_taken;
 	int clerk = -1;
-	start = clock();
+	gettimeofday(&start, NULL);	
 	
 	// wait for customer to arrive on time
 	usleep(c->arrival_time * SLEEP_TIME_CONVERSION);
@@ -225,13 +235,12 @@ void* customer_thread_function(void* temp) {
 	
 	// GET SERVICE
     
-	end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+	time_taken = get_time_from(start);
 	if (c->class == 1) {
-		business_time[b_i] = cpu_time_used;
+		business_time[b_i] = time_taken;
 		b_i++;
 	} else {
-		economy_time[e_i] = cpu_time_used;
+		economy_time[e_i] = time_taken;
 		e_i++;
 	}
 	
@@ -239,7 +248,7 @@ void* customer_thread_function(void* temp) {
 	usleep(c->service_time * SLEEP_TIME_CONVERSION);
 	
 	// print at end of service 
-	printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", cpu_time_used, c->id, clerk);
+	printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", time_taken, c->id, clerk);
 	
 	// unlock and broadcast to finish 
 	//pthread_mutex_unlock(&mutex);

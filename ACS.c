@@ -156,7 +156,7 @@ void set_up_customers(char* to_read) {
 	// parse first line for total number of customers
 	total = atoi(contents[0]);
 	if (total < 0) {
-		prinf("Error: invalid value in input file.");
+		printf("Error: invalid value in input file.");
 		exit(1);
 	}
 
@@ -181,7 +181,7 @@ void set_up_customers(char* to_read) {
 		j++;
 		
 		if (temp->id<0 || temp->class<0 || temp->arrival_time<0 || temp->service_time < 0) {
-			prinf("Error: invalid value in input file.");
+			printf("Error: invalid value in input file.");
 			exit(1);
 		}
 

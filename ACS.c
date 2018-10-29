@@ -213,7 +213,7 @@ void print_queues() {
 float get_time_from(struct timeval start) {
 	struct timeval curr;
 	gettimeofday(&curr, NULL);
-	time_conversion = 10*SLEEP_TIME_CONVERSION;
+	int time_conversion = 10*SLEEP_TIME_CONVERSION;
 	
 	long curr_microseconds = (curr.tv_sec * time_conversion) + curr.tv_usec;
 	long start_microseconds = (start.tv_sec * time_conversion) + start.tv_usec;

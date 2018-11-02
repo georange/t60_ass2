@@ -274,14 +274,14 @@ struct timeval get_service(customer* c) {
 	
 	if (c->class == 0) {
 		// if I'm at the front of economy queue and business queue is empty and there's a free clerk, take the position and leave the queue
-		if (check_clerks() && !business_queue && economy_queue.id == c->id) {
+		if (check_clerks() && !business_queue.id && economy_queue.id == c->id) {
 			get_clerk(c);
 			dequeue(c->class);
 			pthread_mutex_unlock(&mutex); 
 			return start;
 		}
 		// otherwise, I wait for the conditions to be right
-		while (business_queue && economy_queue.id != c->id && !check_clerks()) {
+		while (business_queue.id && economy_queue.id != c->id && !check_clerks()) {
 			pthread_cond_wait(&convar, &mutex);
 		}
 	} else if (c->class == 1) {

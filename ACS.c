@@ -52,8 +52,8 @@ pthread_cond_t convar;
 int clerks[4] = {-1};		// for telling which clerk is serving which customer
 
 //int serving = -1; 	// for telling which clerk is serving a queue, -1 means no clerk is serving
-int busy = 0;		// for telling when a queue is busy being served by a clerk
-int served = 0;		// for telling when a customer has left a queue and is being served (to stop multiple customers leaving the queue)
+//int busy = 0;		// for telling when a queue is busy being served by a clerk
+//int served = 0;		// for telling when a customer has left a queue and is being served (to stop multiple customers leaving the queue)
 
 int total = 0; 		// total customers
 
@@ -219,6 +219,7 @@ void print_queues() {
 /** Thread Functions **/
 
 
+// returns the time difference between time started and time now 
 float get_time_from(struct timeval start) {
 	struct timeval curr;
 	gettimeofday(&curr, NULL);
@@ -229,6 +230,93 @@ float get_time_from(struct timeval start) {
 	return (float)(curr_microseconds - start_microseconds) / (time_conversion);
 }
 
+// check if a clerk is open
+int check_clerks() {
+	if (clerks[0] == -1) {
+		return 1;
+	} else if (clerks[1] == -1) {
+		return 1;
+	} else if (clerks[2] == -1) {
+		return 1;
+	} else if (clerks[3] == -1) {
+		return 1;
+	}
+	
+	return 0;
+}
+
+// if a clerk is open, take the spot
+int get_clerk (customer* c) {
+	if (clerks[0] == -1) {
+		clerks[0] = c->id;
+		return 1;
+	} else if (clerks[1] == -1) {
+		clerks[1] = c->id;
+		return 1;
+	} else if (clerks[2] == -1) {
+		clerks[2] = c->id;
+		return 1;
+	} else if (clerks[3] == -1) {
+		clerks[3] = c->id;
+		return 1;
+	}
+	
+	return 0;
+}
+
+struct timeval get_service(customer* c) {
+	struct timeval start;
+	pthread_mutex_lock(&mutex);	
+
+	enqueue(c);
+	// start keeping time once customer has entered the queue
+	gettimeofday(&start, NULL);
+	
+	if (c->class == 0) {
+		// if I'm at the front of economy queue and business queue is empty and there's a free clerk, take the position and leave the queue
+		if (check_clerks() && !business_head && economy_head->id == c->id) {
+			get_clerk(c);
+			dequeue();
+			pthread_mutex_unlock(&mutex); 
+			return start;
+		}
+		// otherwise, I wait for the conditions to be right
+		while (business_head && economy_head->id != c->id && !check_clerks()) {
+			pthread_cond_wait(&convar, &mutex);
+		}
+	} else if (c->class == 1) {
+		// if I'm at the front of business queue and there's a free clerk, take the position and leave the queue
+		if (check_clerks() && business_head->id == c->id) {
+			get_clerk(c);
+			dequeue();
+			pthread_mutex_unlock(&mutex); 
+			return start;
+		}
+		// otherwise I wait for the conditions to be right
+		while (business_head->id != c->id && !check_clerks()) {
+			pthread_cond_wait(&convar, &mutex);
+		}
+	} else {
+		fprintf(stderr, "Error: invalid class.\n");
+		exit(1);
+	}
+	
+	get_clerk(c);
+	dequeue();
+	pthread_mutex_unlock(&mutex); 
+	
+	return start;
+}
+
+void release_service(int clerk) {
+	pthread_mutex_lock(&mutex);
+	
+	clerks[clerk-1] = -1;
+	
+	pthread_mutex_unlock(&mutex);
+	pthread_cond_broadcast(&convar);
+	
+}
 
 // customer threads
 void* customer_thread_function(void* temp) {
@@ -236,13 +324,25 @@ void* customer_thread_function(void* temp) {
 	struct timeval start;
     float time_taken;
 	int clerk = -1;
-	gettimeofday(&start, NULL);	
 	
 	// wait for customer to arrive on time
 	usleep(c->arrival_time * SLEEP_TIME_CONVERSION);
 	printf ("A customer arrives: customer ID %2d. \n", c->id);
 	
-	// GET SERVICE
+	// get served by a clerk
+	start = get_service(c);
+	
+	// find out which clerk is serving me
+	int i;
+	for (i = 0; i < 4; i++) {
+		if (clerks[i] == c->id) {
+			clerk = i+1;
+		}
+	}
+	
+	time_taken = get_time_from(start);
+	// print at start of service 
+	printf("A clerk starts serving a customer: start time %.2f, the customer ID %2d, the clerk ID %1d. \n", time_taken, c->id, clerk);
     
 	time_taken = get_time_from(start);
 	if (c->class == 1) {
@@ -253,15 +353,15 @@ void* customer_thread_function(void* temp) {
 		e_i++;
 	}
 	
-	// wait for time to serve customer
+	// wait for customer to finish being served
 	usleep(c->service_time * SLEEP_TIME_CONVERSION);
 	
+	time_taken = get_time_from(start);
 	// print at end of service 
 	printf("A clerk finishes serving a customer: end time %.2f, the customer ID %2d, the clerk ID %1d. \n", time_taken, c->id, clerk);
 	
-	// unlock and broadcast to finish 
-	//pthread_mutex_unlock(&mutex);
-	//pthread_cond_broadcast(&convar);
+	// finish getting served by a clerk
+	release_service(clerk);
 	
 	pthread_exit(NULL);
 }

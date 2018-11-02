@@ -79,7 +79,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 	}
 
 	if (!queue_head) {
-		printf("RUN\n");
+		//printf("RUN\n");
 		queue_head = (struct customer*)malloc(sizeof(struct customer));
 
 		queue_head->id = id;
@@ -89,7 +89,7 @@ void enqueue(int id, float arrival_time, float service_time, int class) {
 		queue_head->next = NULL;
 		//printf("%d %d %f %f\n",queue_head->id, queue_head->class, queue_head->arrival_time, queue_head->service_time);
 	} else {
-		printf("RUN\n");
+		//printf("RUN\n");
 		struct customer *curr = queue_head;
 		while (curr->next != NULL) {
 			curr = curr->next;
@@ -274,7 +274,7 @@ struct timeval get_service(customer* c) {
 	
 	if (c->class == 0) {
 		// if I'm at the front of economy queue and business queue is empty and there's a free clerk, take the position and leave the queue
-		if (check_clerks() && !business_queue && economy_queue->id == c->id) {
+		if (check_clerks() && business_queue == NULL && economy_queue->id == c->id) {
 			get_clerk(c);
 			dequeue(c->class);
 			pthread_mutex_unlock(&mutex); 

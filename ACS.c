@@ -187,7 +187,7 @@ void set_up_customers(char* to_read) {
 
 		//printf("%d %d %f %f\n",temp->id, temp->class, temp->arrival_time, temp->service_time);
 
-		enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);
+		//enqueue(temp->id, temp->arrival_time, temp->service_time, temp->class);
 		//free(temp);
 	}
 }
@@ -268,7 +268,7 @@ struct timeval get_service(customer* c) {
 	struct timeval start;
 	pthread_mutex_lock(&mutex);	
 
-	enqueue(c);
+	enqueue(c->id, c->arrival_time, c->service_time, c->class);
 	// start keeping time once customer has entered the queue
 	gettimeofday(&start, NULL);
 	

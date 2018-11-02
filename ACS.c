@@ -276,7 +276,7 @@ struct timeval get_service(customer* c) {
 		// if I'm at the front of economy queue and business queue is empty and there's a free clerk, take the position and leave the queue
 		if (check_clerks() && !business_head && economy_head->id == c->id) {
 			get_clerk(c);
-			dequeue();
+			dequeue(c->class);
 			pthread_mutex_unlock(&mutex); 
 			return start;
 		}
@@ -288,7 +288,7 @@ struct timeval get_service(customer* c) {
 		// if I'm at the front of business queue and there's a free clerk, take the position and leave the queue
 		if (check_clerks() && business_head->id == c->id) {
 			get_clerk(c);
-			dequeue();
+			dequeue(c->class);
 			pthread_mutex_unlock(&mutex); 
 			return start;
 		}

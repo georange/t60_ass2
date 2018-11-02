@@ -234,11 +234,14 @@ float get_time_from(struct timeval start) {
 int check_clerks() {
 	if (clerks[0] == -1) {
 		return 1;
-	} else if (clerks[1] == -1) {
+	} 
+	if (clerks[1] == -1) {
 		return 1;
-	} else if (clerks[2] == -1) {
+	}
+	if (clerks[2] == -1) {
 		return 1;
-	} else if (clerks[3] == -1) {
+	}
+	if (clerks[3] == -1) {
 		return 1;
 	}
 	
@@ -250,13 +253,16 @@ int get_clerk (customer* c) {
 	if (clerks[0] == -1) {
 		clerks[0] = c->id;
 		return 1;
-	} else if (clerks[1] == -1) {
+	}
+	if (clerks[1] == -1) {
 		clerks[1] = c->id;
 		return 1;
-	} else if (clerks[2] == -1) {
+	}
+	if (clerks[2] == -1) {
 		clerks[2] = c->id;
 		return 1;
-	} else if (clerks[3] == -1) {
+	}
+	if (clerks[3] == -1) {
 		clerks[3] = c->id;
 		return 1;
 	}

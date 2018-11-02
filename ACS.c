@@ -302,7 +302,7 @@ struct timeval get_service(customer* c) {
 	}
 	
 	get_clerk(c);
-	dequeue();
+	dequeue(c->class);
 	pthread_mutex_unlock(&mutex); 
 	
 	return start;

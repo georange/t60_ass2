@@ -444,7 +444,9 @@ int main(int argc, char* argv[]) {
 	}
 	
 	// print time averages
-	double all_time, b_time, e_time;
+	double all_time = 0;
+	double b_time = 0;
+	double e_time = 0;
 	for (i = 0; i < b_i; i++) {
 		b_time = b_time + business_time[i];
 	}

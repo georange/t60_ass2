@@ -49,7 +49,7 @@ pthread_mutex_t mutex;
 pthread_cond_t convar;
 
 // status variables
-int clerks[4] = {-1};		// for telling which clerk is serving which customer
+int clerks[4] = {-1, -1, -1, -1};		// for telling which clerk is serving which customer
 
 //int serving = -1; 	// for telling which clerk is serving a queue, -1 means no clerk is serving
 //int busy = 0;		// for telling when a queue is busy being served by a clerk
@@ -287,7 +287,7 @@ struct timeval get_service(customer* c) {
 			return start;
 		}**/
 		// otherwise, I wait for the conditions to be right
-		while (business_queue.id && economy_queue.id != c->id && !check_clerks()) {
+		while (business_queue.next != NULL && economy_queue.next->id != c->id && !check_clerks()) {
 			pthread_cond_wait(&convar, &mutex);
 		}
 	} else if (c->class == 1) {
@@ -299,7 +299,7 @@ struct timeval get_service(customer* c) {
 			return start;
 		}**/
 		// otherwise I wait for the conditions to be right
-		while (business_queue.id != c->id && !check_clerks()) {
+		while (business_queue.next->id != c->id && !check_clerks()) {
 			pthread_cond_wait(&convar, &mutex);
 		}
 	} else {
